@@ -1,5 +1,5 @@
-#include "C:\Users\lukew\.node-gyp\8.11.3\include\node\node.h"
-#include "C:\Users\lukew\.node-gyp\8.11.3\include\node\v8.h"
+#include <node.h>
+#include <v8.h>
 
 
 namespace algorithm {
