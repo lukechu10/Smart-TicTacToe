@@ -131,8 +131,12 @@ namespace algorithm {
 			}
 		}
 	
-
-		return biggestNumberLocation;
+		if (debug == true){
+			return arrayValues;
+		}
+		else {
+			return biggestNumberLocation;
+		}
 	}
 } // namespace algorithm
 
