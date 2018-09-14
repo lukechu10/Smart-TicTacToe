@@ -1,9 +1,31 @@
-#include <node.h>
-#include <v8.h>
+#include "node.h"
+#include "v8.h"
 
 
 namespace algorithm {
 	const std::vector<std::vector<int>> align = { { 0,1,2 },{ 3,4,5 },{ 6,7,8 },{ 0,3,6 },{ 1,4,7 },{ 2,5,8 },{ 0,4,8 },{ 2,4,6 } };// series of three numbers that are aligned
+	
+	char allSame(char one, char two, char three) { //returns value if all three have the same value
+		if (one == two && two == three && one != ' ') {
+			return one;
+		}
+		else {
+			return ' ';
+		}
+	}
+
+	char whoWin(const char gameArray[9]) {// checks who wins
+		if (allSame(gameArray[0], gameArray[1], gameArray[2]) != ' ') return gameArray[0];//horizontal
+		else if (allSame(gameArray[3], gameArray[4], gameArray[5]) != ' ') return gameArray[3];
+		else if (allSame(gameArray[6], gameArray[7], gameArray[8]) != ' ') return gameArray[6];
+		else if (allSame(gameArray[0], gameArray[3], gameArray[6]) != ' ') return gameArray[0];//vertical
+		else if (allSame(gameArray[1], gameArray[4], gameArray[7]) != ' ') return gameArray[1];
+		else if (allSame(gameArray[2], gameArray[5], gameArray[8]) != ' ') return gameArray[2];
+		else if (allSame(gameArray[0], gameArray[4], gameArray[8]) != ' ') return gameArray[0];//diagonal
+		else if (allSame(gameArray[2], gameArray[4], gameArray[6]) != ' ') return gameArray[2];//diagonal
+		else return ' ';
+	}
+
 	bool include(char x, int one, int two, int three) {
 		if (one == x || two == x || three == x) {
 			return true;
@@ -89,7 +111,7 @@ namespace algorithm {
 		else return arrayValues;
 	}
 
-	int cpuTurn(const char gameArray[9]) {// returns coordinate where cpu should go on his turn
+	int cpuTurn(const char gameArray[9], bool debug) {// returns coordinate where cpu should go on his turn
 		std::vector<int> arrayValues = { 0,0,0,0,0,0,0,0,0 };
 
 		for (int sumUp = 0; sumUp < 9; sumUp++) {// sum up open(gameArray) and possible(gameArray)
@@ -139,12 +161,56 @@ namespace game {
 		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
 		const char* bar = ToCString(retval);
 
-		const int returnValue = algorithm::cpuTurn(bar);
+		const int returnValue = algorithm::cpuTurn(bar, false);
 		args.GetReturnValue().Set(Integer::New(isolate, returnValue));
 	}
 
+	void ConversionTest(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+
+		String::Utf8Value s(args[0]);
+		std::string str(*s, s.length());
+
+		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
+		const char* bar = ToCString(retval);
+
+		args.GetReturnValue().Set(String::NewFromUtf8(isolate, bar));
+	}
+
+	void whoWin(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+
+		String::Utf8Value s(args[0]);
+		std::string str(*s, s.length());
+
+		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
+		const char* bar = ToCString(retval);
+
+		const char returnValue = algorithm::whoWin(bar);
+
+		args.GetReturnValue().Set(String::NewFromUtf8(isolate, &returnValue));
+		
+	}
+	
+	void ReturnBestTurnDebug(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
+
+		String::Utf8Value s(args[0]);
+		std::string str(*s, s.length());
+
+		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
+		const char* bar = ToCString(retval);
+
+		const int returnValue = algorithm::cpuTurn(bar, true);
+		args.GetReturnValue().Set(Integer::New(isolate, returnValue));
+	}
+	
+
 	void Initialize(Local<Object> exports) {
 		NODE_SET_METHOD(exports, "bestMove", ReturnBestTurn);
+		NODE_SET_METHOD(exports, "bestMoveDebug", ReturnBestTurnDebug);
+		NODE_SET_METHOD(exports, "conversionTest", ConversionTest);
+		NODE_SET_METHOD(exports, "checkWin", whoWin);
 	}
 
 	NODE_MODULE(NODE_GYP_MODULE_NAME, Initialize)
