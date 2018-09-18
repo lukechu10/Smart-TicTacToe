@@ -26,6 +26,7 @@ This logs `4` in the console because `tictactoe.bestMove()` returns the best loc
 **O**|**_**   |**X**
 
 Which is `3` to prevent `X` from winning because the TicTacToe board is stored as a array:
+
   0  |  1  |  2
 -----|-----|-----
  `3` |**4**|**5**
