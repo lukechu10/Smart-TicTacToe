@@ -1,14 +1,22 @@
 {
   "name": "smart-tictactoe",
-  "version": "1.0.5",
+  "version": "2.2.0-beta.6",
   "description": "A Node Module that provides a function to return the best move in a Tic Tac Toe game for the computer.",
   "main": "./build/Release/game.node",
   "scripts": {
     "test": "game.bestMove(    x    );"
   },
   "keywords": [
-    "tictactoe"
+    "tictactoe",
+    "ai",
+    "never-win"
   ],
   "author": "lukechu10",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "node-gyp": "~3.8.0"
+  },
+  "engines": {
+    "node": ">6.0.0"
+  }
 }

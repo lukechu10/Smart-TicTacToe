@@ -77,7 +77,7 @@ namespace algorithm {
 		std::vector<int> arrayValues = { 0,0,0,0,0,0,0,0,0 };
 
 		
-			bool self = false;
+		bool self = false;
 		bool enemy = false;
 
 		for (int repeat = 0; repeat < 8; repeat++) {
@@ -131,8 +131,19 @@ namespace algorithm {
 			}
 		}
 	
-
 		return biggestNumberLocation;
+	}
+	
+	std::vector<int> cpuTurnDebug(const char gameArray[9]) {// returns coordinate where cpu should go on his turn
+		std::vector<int> arrayValues = { 0,0,0,0,0,0,0,0,0 };
+
+		for (int sumUp = 0; sumUp < 9; sumUp++) {// sum up open(gameArray) and possible(gameArray)
+			arrayValues[sumUp] = open(gameArray, 'X')[sumUp] + open(gameArray, 'O')[sumUp] + instantDanger(gameArray)[sumUp] + lookAheadCase(gameArray)[sumUp];// adds ups the multiple filters
+		}
+
+		arrayValues = filterPlaced(arrayValues, gameArray);
+	
+		return arrayValues;
 	}
 } // namespace algorithm
 
@@ -146,6 +157,17 @@ namespace game {
 	using v8::Value;
 	using v8::Integer;
 	using v8::Number;
+	
+	int VectorToInt(std::vector<int> v){
+    	int decimal = 1;
+    	int total = 0;
+    	for (auto& it : v)
+    	{
+    	   total += it * decimal;
+    	   decimal *= 10;
+    	}
+    	return total;
+	}
 
 	const char* ToCString(Local<String> str) {
 		String::Utf8Value value(str);
@@ -160,8 +182,21 @@ namespace game {
 
 		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
 		const char* bar = ToCString(retval);
+		args.GetReturnValue().Set(Integer::New(isolate, algorithm::cpuTurn(bar, false)));
+	}
+	
+	void ReturnBestTurnDebug(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = args.GetIsolate();
 
-		const int returnValue = algorithm::cpuTurn(bar, false);
+		String::Utf8Value s(args[0]);
+		std::string str(*s, s.length());
+
+		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
+		const char* bar = ToCString(retval);
+		
+		
+		const std::vector<int> data = algorithm::cpuTurnDebug(bar);
+		const int returnValue = VectorToInt(data);
 		args.GetReturnValue().Set(Integer::New(isolate, returnValue));
 	}
 
@@ -192,18 +227,7 @@ namespace game {
 		
 	}
 	
-	void ReturnBestTurnDebug(const FunctionCallbackInfo<Value>& args) {
-		Isolate* isolate = args.GetIsolate();
-
-		String::Utf8Value s(args[0]);
-		std::string str(*s, s.length());
-
-		Local<String> retval = String::NewFromUtf8(isolate, str.c_str());
-		const char* bar = ToCString(retval);
-
-		const int returnValue = algorithm::cpuTurn(bar, true);
-		args.GetReturnValue().Set(Integer::New(isolate, returnValue));
-	}
+	
 	
 
 	void Initialize(Local<Object> exports) {
